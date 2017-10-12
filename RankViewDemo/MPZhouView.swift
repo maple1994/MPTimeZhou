@@ -125,6 +125,12 @@ class MPZhouView: UIView {
         self.backgroundColor = UIColor.clear
         let pan = UIPanGestureRecognizer(target: self, action: #selector(MPZhouView.panAction(gesture:)))
         self.addGestureRecognizer(pan)
+        startTriangleImgView = UIImageView()
+        startTriangleImgView.image = createTriangleImg()
+        endTriangleImgView = UIImageView()
+        endTriangleImgView.image = startTriangleImgView.image
+        addSubview(startTriangleImgView)
+        addSubview(endTriangleImgView)
     }
     
     convenience init(totalCount: Int, zhouRectSpacex: CGFloat) {
@@ -139,6 +145,9 @@ class MPZhouView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         zhouRect = CGRect(x: zhouRectSpacex, y: self.frame.height * 0.5 - 0.5 * zhouH, width: self.frame.width - 2 * zhouRectSpacex, height: zhouH)
+        
+        startTriangleImgView.frame = CGRect(x: 0, y: zhouRect.maxY + 5, width: triangleLength, height: triangleLength)
+        endTriangleImgView.frame = CGRect(x: 0, y: zhouRect.maxY + 5, width: triangleLength, height: triangleLength)
     }
     
     // MARK: - Action
@@ -272,6 +281,8 @@ class MPZhouView: UIView {
         drawPopText(text: startText, startX: startMinX, endX: startMaxX, centerX: startCenterX, rectSize: aRectSize)
         // 绘制终点x轴
         drawPopText(text: endText, startX: endMinX, endX: endMaxX, centerX: endCenterX, rectSize: aRectSize)
+        startTriangleImgView.center.x = startCenterX
+        endTriangleImgView.center.x = endCenterX
     }
     
     /// 画“对话框”的Text
@@ -317,8 +328,25 @@ class MPZhouView: UIView {
         circlePath.stroke()
         
         // 绘制三角形
+//        let trianglePath: UIBezierPath = UIBezierPath()
+//        let tY1: CGFloat = zhouRect.maxY + 5
+//        let tY2: CGFloat = triangleLength * (2 / 3) + tY1
+//        trianglePath.move(to: CGPoint(x: centerX, y: tY1))
+//        trianglePath.addLine(to: CGPoint(x: centerX - 0.5 * triangleLength, y: tY2))
+        
+//        trianglePath.addLine(to: CGPoint(x: centerX + 0.5 * triangleLength, y: tY2))
+//        trianglePath.close()
+//        UIColor.red.setFill()
+//        trianglePath.fill()
+    }
+    
+    fileprivate func createTriangleImg() -> UIImage? {
+        let wh: CGFloat = triangleLength
+        let size = CGSize(width: wh, height: wh)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
         let trianglePath: UIBezierPath = UIBezierPath()
-        let tY1: CGFloat = zhouRect.maxY + 5
+        let centerX = wh * 0.5
+        let tY1: CGFloat = 0
         let tY2: CGFloat = triangleLength * (2 / 3) + tY1
         trianglePath.move(to: CGPoint(x: centerX, y: tY1))
         trianglePath.addLine(to: CGPoint(x: centerX - 0.5 * triangleLength, y: tY2))
@@ -326,7 +354,13 @@ class MPZhouView: UIView {
         trianglePath.close()
         UIColor.red.setFill()
         trianglePath.fill()
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
     }
+    
+    fileprivate var startTriangleImgView: UIImageView!
+    fileprivate var endTriangleImgView: UIImageView!
 }
 
 extension String {
